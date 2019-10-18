@@ -8,7 +8,7 @@ def file_write(txt):
 	with open("log.txt", "a") as fp:
 		fp.write(txt)
 
-def encode_rot47_char(c, key="!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"):
+def encode_rot47_char(c, key="!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"):
 	try:
 		pos = key.index(c)
 		npos = (pos + 47) % (len(key))
@@ -17,7 +17,7 @@ def encode_rot47_char(c, key="!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQ
 		return c
 
 def decode_rot47_char(c):
-	drot47 = "PQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO"
+	drot47 = "PQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNO"
 	return encode_rot47_char(c, key=drot47)
 
 def buffer_flush():
@@ -87,7 +87,7 @@ def _key_press(key):
 			buffer_write_text("[ENTER] ")
 			buffer_flush()
 
-if sys.argv[1] == "-d" and len(sys.argv) == 3:
+if len(sys.argv) >= 2 and sys.argv[1] == "-d":
 	lines = []
 	with open("log.txt", "r") as fp:
 		lines = fp.readlines()
