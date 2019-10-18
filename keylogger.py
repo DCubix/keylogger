@@ -1,6 +1,6 @@
 import sys
-from pynput.keyboard import Key, Listener
 from datetime import datetime
+from pynput.keyboard import Key, Listener
 
 buffer = []
 
